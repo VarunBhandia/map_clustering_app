@@ -2,9 +2,7 @@ from flask import Flask
 from flask import render_template
 from flask import request
 
-from flask_pymongo import PyMongo
 from pymongo import MongoClient
-
 import pandas as pd
 
 app = Flask(__name__)
@@ -16,46 +14,35 @@ def transform(text_file_contents):
 
 @app.route("/")
 def home_page():
-    client = MongoClient('mongodb://localhost:27017/')
+    return render_template("index.html")
 
+
+@app.route("/upload_excel_file", methods=['GET', 'POST'])
+def upload_excel_file():
+    collection = []
+    length_of_columns = ''
+
+    file_name = request.files['file']
+
+    dfe = pd.read_excel(file_name)
+    data_dict = dfe.to_dict()
+    for i in data_dict:
+        length_of_columns = len(data_dict[i])
+
+    for j in range(length_of_columns):
+        each_row = {}
+        for i in data_dict:
+            if i in each_row:
+                each_row[i].append(data_dict[i][j])
+            else:
+                each_row[i] = data_dict[i][j]
+        collection.append(each_row)
+    client = MongoClient('mongodb://localhost:27017/')
     with client:
         db = client.testdb
-        myvar = db.collection_names()
-    return render_template("index.html", myvar=myvar)
+        db.database_table.insert_many(collection)
 
-
-@app.route('/transform', methods=["POST"])
-def transform_view():
-    file = request.files['data_file']
-    if not file:
-        return "No file"
-
-    file_contents = file.stream.read().decode("utf-8")
-    print(file_contents)
-
-    return render_template("transform.html")
-
-
-@app.route("/upload", methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        f = request.files['file']
-        data_xls = pd.read_excel(f)
-        var_data = data_xls
-        return render_template("transform.html", var_data=var_data)
-    return '''
-    <!doctype html>
-    <title>Upload an excel file</title>
-    <h1>Excel file upload (csv, tsv, csvz, tsvz only)</h1>
-    <form action="" method=post enctype=multipart/form-data>
-    <p><input type=file name=file><input type=submit value=Upload>
-    </form>
-    '''
-
-
-@app.route("/export", methods=['GET'])
-def export_records():
-    return
+    return render_template("data.html", collection=collection)
 
 
 if __name__ == '__main__':
