@@ -77,10 +77,26 @@
     <form action="/upload_excel_file" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label>File Upload</label>
-            <input type="file" class="form-control" name="file">
-            <small class="form-text text-muted">Upload your CSV file here.</small>
-        </div>
-        <button type="submit" class="btn-primary"> Upload</button>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="file" class="form-control" name="excel_file">
+                    <small class="form-text text-muted">Upload your Excel file here.</small>
+                </div>
+            </div>
+            </div>
+        <button type="submit" class="btn btn-primary"> Upload</button>
+    </form>
+    <form action="/save_kml_file" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>File Upload</label>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="file" class="form-control" name="kml_file">
+                    <small class="form-text text-muted">Upload your KML file here.</small>
+                </div>
+            </div>
+            </div>
+        <button type="submit" class="btn btn-primary"> Upload</button>
     </form>
 </div>
 </body>

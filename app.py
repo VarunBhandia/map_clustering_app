@@ -1,11 +1,16 @@
-from flask import Flask
-from flask import render_template
-from flask import request
+import urllib.request
+import os
+from flask import Flask, flash, request, redirect, render_template
+from werkzeug.utils import secure_filename
 
 from pymongo import MongoClient
 import pandas as pd
 
+UPLOAD_FOLDER = '/root/PycharmProjects/untitled1/uploads'
 app = Flask(__name__)
+app.secret_key = "secret key"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 def transform(text_file_contents):
@@ -22,7 +27,7 @@ def upload_excel_file():
     collection = []
     length_of_columns = ''
 
-    file_name = request.files['file']
+    file_name = request.files['excel_file']
 
     dfe = pd.read_excel(file_name)
     data_dict = dfe.to_dict()
@@ -43,6 +48,16 @@ def upload_excel_file():
         db.database_table.insert_many(collection)
 
     return render_template("data.html", collection=collection)
+
+
+@app.route("/save_kml_file", methods=['GET', 'POST'])
+def upload_kml_file():
+    if request.method == 'POST':
+        file = request.files['kml_file']
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        flash('File successfully uploaded')
+        return redirect('/')
 
 
 if __name__ == '__main__':
