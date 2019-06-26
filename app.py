@@ -60,5 +60,23 @@ def upload_kml_file():
         return redirect('/')
 
 
+@app.route("/display_kml")
+def display_kml():
+    return render_template('display.html')
+
+
+@app.route("/save_grid_cluster_columns", methods=['GET', 'POST'])
+def save_grid_cluster_columns():
+    if request.method == 'POST':
+        grid_column = request.form["grid_column"]
+        cluster_column = request.form["cluster_column"]
+        print(grid_column)
+        print(cluster_column)
+
+        return render_template('index.html')
+    else:
+        return render_template('index.html')
+
+
 if __name__ == '__main__':
     app.run()
